@@ -1,182 +1,126 @@
+## Melhorias no Código Python para Atividade (0 a 5 pontos de recuperação)
 
-Melhorias no Código Python para Atividade (0 a 5 pontos de recuperação)
-
-Introdução
+**Introdução**
 
 Este guia apresenta sugestões de melhorias para o código Python fornecido, com o objetivo de aprimorar sua legibilidade, eficiência e robustez. A pontuação final para recuperação da média (de 0 a 5 pontos) dependerá da quantidade e da qualidade das implementações realizadas.
 
-Melhorias Sugeridas
+**Melhorias Sugeridas**
 
-1. Importação Simplificada
+### 1. Importação Simplificada
 
-Python
-
+```python
 from google.generativeai import GenerativeModel, Chat
+```
 
-Use o código com cuidado.
+**Descrição:**
 
-content\_copy
+Importa diretamente as classes `GenerativeModel` e `Chat` do módulo `google.generativeai`, evitando a necessidade de importar o módulo completo.
 
-Descrição:
+**Benefícios:**
 
-Importa diretamente as classes GenerativeModel e Chat do módulo google.generativeai, evitando a necessidade de importar o módulo completo.
+* Simplifica o código e torna-o mais legível.
+* Reduz a quantidade de linhas de código.
 
-Benefícios:
+### 2. Gerenciamento de Chave API
 
-Simplifica o código e torna-o mais legível.
-
-Reduz a quantidade de linhas de código.
-
-1. Gerenciamento de Chave API
-
-Python
-
+```python
 import os
 
-GOOGLE\_GEMINI\_API\_KEY = os.environ.get("GOOGLE\_GEMINI\_API\_KEY")
+GOOGLE_GEMINI_API_KEY = os.environ.get("GOOGLE_GEMINI_API_KEY")
 
-if not GOOGLE\_GEMINI\_API\_KEY:
+if not GOOGLE_GEMINI_API_KEY:
+    raise ValueError("Chave API do Gemini não definida.")
 
-raise ValueError("Chave API do Gemini não definida.")
+genai.configure(api_key=GOOGLE_GEMINI_API_KEY)
+```
 
-genai.configure(api\_key=GOOGLE\_GEMINI\_API\_KEY)
+**Descrição:**
 
-Use o código com cuidado.
+* Armazena a chave API do Gemini em uma variável de ambiente para evitar sua exposição no código.
+* Utiliza a função `os.environ.get()` para acessá-la.
+* Verifica se a chave API foi definida e levanta um erro se não for.
 
-content\_copy
+**Benefícios:**
 
-Descrição:
+* Protege a chave API de ser exposta no código.
+* Facilita o gerenciamento da chave API, permitindo que ela seja armazenada em um local seguro.
 
-Armazena a chave API do Gemini em uma variável de ambiente para evitar sua exposição no código.
+### 3. Verificação de Modelos Disponíveis
 
-Utiliza a função os.environ.get() para acessá-la.
-
-Verifica se a chave API foi definida e levanta um erro se não for.
-
-Benefícios:
-
-Protege a chave API de ser exposta no código.
-
-Facilita o gerenciamento da chave API, permitindo que ela seja armazenada em um local seguro.
-
-1. Verificação de Modelos Disponíveis
-
-Python
-
-disponiveis = genai.list\_models()
-
-modelos\_com\_generate\_content = []
+```python
+disponiveis = genai.list_models()
+modelos_com_generate_content = []
 
 for modelo in disponiveis:
+    if "generateContent" in modelo.supported_generation_methods:
+        modelos_com_generate_content.append(modelo)
 
-if "generateContent" in modelo.supported\_generation\_methods:
-
-modelos\_com\_generate\_content.append(modelo)
-
-if not modelos\_com\_generate\_content:
-
-print("Nenhum modelo com suporte para generateContent encontrado.")
-
-exit()
+if not modelos_com_generate_content:
+    print("Nenhum modelo com suporte para generateContent encontrado.")
+    exit()
 
 print("Modelos disponíveis com generateContent:")
+for modelo in modelos_com_generate_content:
+    print(f"- {modelo.name}")
+```
 
-for modelo in modelos\_com\_generate\_content:
+**Descrição:**
 
-print(f"- {modelo.name}")
+* Utiliza um loop `for` com a função `genai.list_models()` para listar os modelos disponíveis.
+* Filtra os modelos por aqueles que suportam o método `generateContent`.
+* Exibe uma mensagem se nenhum modelo com `generateContent` for encontrado.
+* Exibe uma lista dos modelos disponíveis com `generateContent`.
 
-Use o código com cuidado.
+**Benefícios:**
 
-content\_copy
+* Permite que o usuário visualize os modelos disponíveis antes de escolher um.
+* Evita que o usuário tente usar um modelo que não suporta a funcionalidade desejada.
 
-Descrição:
+### 4. Seleção Interativa de Modelo
 
-Utiliza um loop for com a função genai.list\_models() para listar os modelos disponíveis.
-
-Filtra os modelos por aqueles que suportam o método generateContent.
-
-Exibe uma mensagem se nenhum modelo com generateContent for encontrado.
-
-Exibe uma lista dos modelos disponíveis com generateContent.
-
-Benefícios:
-
-Permite que o usuário visualize os modelos disponíveis antes de escolher um.
-
-Evita que o usuário tente usar um modelo que não suporta a funcionalidade desejada.
-
-1. Seleção Interativa de Modelo
-
-Python
-
+```python
 while True:
+    print("\nSelecione um modelo:")
+    for i, modelo in enumerate(modelos_com_generate_content):
+        print(f"{i + 1}. {modelo.name}")
 
-print("\nSelecione um modelo:")
+    try:
+        escolha = int(input("Sua escolha: "))
+    except ValueError:
+        print("Entrada inválida. Digite um número.")
+        continue
 
-for i, modelo in enumerate(modelos\_com\_generate\_content):
+    if 1 <= escolha <= len(modelos_com_generate_content):
+        modelo_selecionado = modelos_com_generate_content[escolha - 1]
+        break
+    else:
+        print("Modelo inválido. Tente novamente.")
 
-print(f"{i + 1}. {modelo.name}")
+model = GenerativeModel(modelo_selecionado.name)
+```
 
-try:
+**Descrição:**
 
-escolha = int(input("Sua escolha: "))
+* Permite que o usuário selecione o modelo desejado dentre os disponíveis com `generateContent`.
+* Utiliza um loop `while` para repetir a seleção até que o usuário escolha um modelo válido.
+* Valida a entrada do usuário e exibe mensagens de erro em caso de entrada inválida.
+* Seleciona o modelo escolhido pelo usuário e cria um objeto `GenerativeModel`.
 
-except ValueError:
+**Benefícios:**
 
-print("Entrada inválida. Digite um número.")
+* Torna a interface mais amigável para o usuário.
+* Permite que o usuário escolha o modelo que melhor atende às suas necessidades.
 
-continue
+### 5. Exemplo de Geração de Conteúdo
 
-if 1 <= escolha <= len(modelos\_com\_generate\_content):
-
-modelo\_selecionado = modelos\_com\_generate\_content[escolha - 1]
-
-break
-
-else:
-
-print("Modelo inválido. Tente novamente.")
-
-model = GenerativeModel(modelo\_selecionado.name)
-
-Use o código com cuidado.
-
-content\_copy
-
-Descrição:
-
-Permite que o usuário selecione o modelo desejado dentre os disponíveis com generateContent.
-
-Utiliza um loop while para repetir a seleção até que o usuário escolha um modelo válido.
-
-Valida a entrada do usuário e exibe mensagens de erro em caso de entrada inválida.
-
-Seleciona o modelo escolhido pelo usuário e cria um objeto GenerativeModel.
-
-Benefícios:
-
-Torna a interface mais amigável para o usuário.
-
-Permite que o usuário escolha o modelo que melhor atende às suas necessidades.
-
-1. Exemplo de Geração de Conteúdo
-
-Python
-
+```python
 prompt = input("Digite um prompt para gerar conteúdo: ")
-
-response = model.generate\_content(prompt)
-
+response = model.generate_content(prompt)
 print(f"Resposta do modelo:\n{response.text}")
+```
 
-Use o código com cuidado.
+**Descrição:**
 
-content\_copy
-
-Descrição:
-
-Apresenta um exemplo de geração de conteúdo utilizando o modelo selecionado.
-
-Permite que o usuário defina o prompt.
-
-Gera o conteúdo
+* Apresenta um exemplo de geração de conteúdo utilizando o modelo selecionado.
+* Permite que o usuário defina o prompt.
+* Gera o conteúdo
