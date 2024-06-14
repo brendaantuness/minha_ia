@@ -8,6 +8,7 @@ from rich.prompt import Prompt
 from rich.table import Table
 
 # Configuração da chave de API
+# Gerar chave https://aistudio.google.com/app/apikey gerar com um dos colegas
 GOOGLE_GEMINI_API_KEY = 'minha-chave'  # Substitua por sua chave de API válida
 
 # Configuração do cliente Gemini
