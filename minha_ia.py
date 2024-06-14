@@ -1,33 +1,91 @@
-#Rodar esse código no google Colab https://colab.research.google.com/
-#Acessar o link https://aistudio.google.com/app/apikey com uma conta google para gerar sua API Key
+# Rodar esse código no google Colab https://colab.research.google.com/
 
 !pip install -q google-generativeai
+!pip install rich
 import google.generativeai as genai
+from rich.console import Console
+from rich.prompt import Prompt
+from rich.table import Table
 
-from google.colab import userdata
+# Configuração da chave de API
+GOOGLE_GEMINI_API_KEY = 'minha-chave'  # Substitua por sua chave de API válida
 
-GOOGLE_GEMINI_API_KEY = 'sua_chave_aqui'
-
+# Configuração do cliente Gemini
 genai.configure(api_key=GOOGLE_GEMINI_API_KEY)
 
-#Lista os modelos disponiveis do Gemini
-#for m in genai.list_models():
-#  if 'generateContent' in m.supported_generation_methods:
-#    print(m.name)
+# Definindo o modelo do Gemini
+try:
+    model = genai.GenerativeModel("gemini-1.5-pro-latest")
+except Exception as e:
+    print(f"Erro ao configurar o modelo: {e}")
+    exit()
 
-model = genai.GenerativeModel("gemini-1.5-pro-latest")
+# Iniciando a sessão de chat
+try:
+    chat = model.start_chat(history=[])
+except Exception as e:
+    print(f"Erro ao iniciar a sessão de chat: {e}")
+    exit()
 
-#Teste de pergunta direta
-#response = model.generate_content("Como posso ficar craque em Python?")
-#print(response)
-#response.text
+# Prompt inicial não exibido ao usuário, para orientar as respostas do modelo
+initial_prompt = "Você é um assistente amigável que ajuda as pessoas a aprenderem Python de maneira clara e acolhedora."
 
-#Teste pergunta interativa
-#chat = model.start_chat(history=[])
+# Enviando o prompt inicial para balizar a resposta do modelo
+try:
+    chat.send_message(initial_prompt)
+except Exception as e:
+    print(f"Erro ao enviar o prompt inicial: {e}")
+    exit()
 
-#prompt = input("Como posso te ajudar hoje?")
+# Inicializando o console para saída de texto estilizada
+console = Console()
 
-#while prompt != "fim":
-#  response = chat.send_message(prompt)
-#  print(response.text)
-#  prompt = input("Como posso te ajudar hoje?")
+# Função para exibir o histórico de conversas em uma tabela
+def print_chat_history(history):
+    """Exibe o histórico de conversas em formato de tabela.
+    
+    Args:
+        history (list): Lista de tuplas contendo as mensagens do usuário e as respostas do assistente.
+    """
+    table = Table(show_header=True, header_style="bold magenta")
+    table.add_column("Usuário", style="dim")
+    table.add_column("Assistente")
+    
+    for i, (user_input, response) in enumerate(history):
+        table.add_row(f"[green]{user_input}[/green]", f"[blue]{response}[/blue]")
+    
+    console.print(table)
+
+# Histórico de conversas
+chat_history = []
+
+# Mensagem inicial de boas-vindas
+console.print("[bold yellow]Bem-vindo! Estou aqui para te ajudar com suas dúvidas sobre Python.[/bold yellow]")
+console.print("Digite [bold magenta]'fim'[/bold magenta] a qualquer momento para encerrar a conversa.", style="bold yellow")
+
+# Loop de interação com o usuário
+while True:
+    user_input = Prompt.ask("\n[bold cyan]Como posso te ajudar hoje?[/bold cyan]")
+
+    if user_input.strip().lower() == "fim":
+        console.print("[bold red]Conversa encerrada. Até a próxima![/bold red]")
+        break
+    
+    if not user_input.strip():
+        console.print("[bold red]Por favor, digite uma pergunta ou comando válido.[/bold red]")
+        continue
+    
+    try:
+        # Enviando a mensagem do usuário ao modelo e recebendo a resposta
+        response = chat.send_message(user_input)
+        response_text = response.text.strip()
+    except Exception as e:
+        console.print(f"[bold red]Erro ao processar a mensagem: {e}[/bold red]")
+        continue
+    
+    # Atualizando o histórico de conversas
+    chat_history.append((user_input, response_text))
+    
+    # Limpando o console para exibir o histórico atualizado
+    console.clear()
+    print_chat_history(chat_history)
