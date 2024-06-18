@@ -29,7 +29,7 @@ except Exception as e:
     exit()
 
 # Prompt inicial não exibido ao usuário, para orientar as respostas do modelo
-initial_prompt = "Você é um assistente amigável que ajuda as pessoas a aprenderem Python de maneira clara e acolhedora."
+initial_prompt = "Você é um assistente amigável que ajuda as pessoas a aprenderem Power BI de maneira clara e acolhedora."
 
 # Enviando o prompt inicial para balizar a resposta do modelo
 try:
