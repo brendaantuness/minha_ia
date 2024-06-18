@@ -29,7 +29,7 @@ except Exception as e:
     exit()
 
 # Prompt inicial não exibido ao usuário, para orientar as respostas do modelo
-initial_prompt = "Você é um assistente amigável que ajuda as pessoas a aprenderem Python de maneira clara e acolhedora."
+initial_prompt = "Você é um assistente amigável que ajuda as pessoas a aprenderem mais sobre Power BI de maneira clara e acolhedora."
 
 # Enviando o prompt inicial para balizar a resposta do modelo
 try:
@@ -61,7 +61,7 @@ def print_chat_history(history):
 chat_history = []
 
 # Mensagem inicial de boas-vindas
-console.print("[bold yellow]Bem-vindo! Estou aqui para te ajudar com suas dúvidas sobre Python.[/bold yellow]")
+console.print("[bold yellow]Bem-vindo! Estou aqui para te ajudar com suas dúvidas sobre Power BI.[/bold yellow]")
 console.print("Digite [bold magenta]'fim'[/bold magenta] a qualquer momento para encerrar a conversa.", style="bold yellow")
 
 # Loop de interação com o usuário
@@ -73,7 +73,7 @@ while True:
         break
     
     if not user_input.strip():
-        console.print("[bold red]Por favor, digite uma pergunta ou comando válido.[/bold red]")
+        console.print("[bold red]Por favor, digite uma pergunta válida.[/bold red]")
         continue
     
     try:
